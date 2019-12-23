@@ -1,19 +1,16 @@
 package main
 
 import (
-	"math/rand"
-
 	"github.com/hajimehoshi/ebiten"
 )
 
 var m maze
-var s maze
+var stack maze
 
 type maze struct {
 	cells []cell
 }
 
-// Push adds an Item to the top of the stack
 func (s *maze) push(t cell) {
 	s.cells = append(s.cells, t)
 }
@@ -56,32 +53,19 @@ func (s *maze) getNonVisitedNeighbours(c cell) []cell {
 func remWall(a, b *cell) {
 	x := a.row - b.row
 	if x == 1 {
-		a.walls[3] = false
-		b.walls[1] = false
+		a.walls[up] = false
+		b.walls[down] = false
 	} else if x == -1 {
-		a.walls[1] = false
-		b.walls[3] = false
+		a.walls[down] = false
+		b.walls[up] = false
 	}
 	y := a.col - b.col
 	if y == 1 {
-		a.walls[0] = false
-		b.walls[2] = false
+		a.walls[left] = false
+		b.walls[right] = false
 	} else if y == -1 {
-		a.walls[2] = false
-		b.walls[0] = false
-	}
-}
-
-func updateMaze(maze, stack *maze) {
-	c := stack.pop()
-	nonVisited := maze.getNonVisitedNeighbours(c)
-	if len(nonVisited) > 0 {
-		stack.push(c)
-		nC := nonVisited[rand.Intn(len(nonVisited))]
-		remWall(&maze.cells[int(c.row*rows+c.col)], &maze.cells[int(nC.row*rows+nC.col)])
-		maze.cells[int(nC.row*rows+nC.col)].visited = true
-		stack.push(maze.cells[int(nC.row*rows+nC.col)])
-		visited++
+		a.walls[right] = false
+		b.walls[left] = false
 	}
 }
 

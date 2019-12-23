@@ -7,6 +7,13 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 )
 
+const (
+	left = iota
+	down
+	right
+	up
+)
+
 type cell struct {
 	visited  bool
 	walls    [4]bool
@@ -21,19 +28,19 @@ func (c cell) show(s *ebiten.Image) {
 	x := c.col * blockSize
 	y := c.row * blockSize
 	w := float64(blockSize)
-	if c.walls[3] {
+	if c.walls[up] {
 		ebitenutil.DrawLine(s, x, y, x+w, y, color.White)
 	}
-	if c.walls[2] {
+	if c.walls[right] {
 		ebitenutil.DrawLine(s, x+w, y, x+w, y+w, color.White)
 	}
-	if c.walls[1] {
+	if c.walls[down] {
 		ebitenutil.DrawLine(s, x+w, y+w, x, y+w, color.White)
 	}
-	if c.walls[0] {
+	if c.walls[left] {
 		ebitenutil.DrawLine(s, x, y+w, x, y, color.White)
 	}
 	if c.visited {
-		ebitenutil.DrawRect(s, c.col*blockSize+10, c.row*blockSize+10, blockSize-20, blockSize-20, color.White)
+		ebitenutil.DrawRect(s, c.col*blockSize+4, c.row*blockSize+4, blockSize-8, blockSize-8, color.White)
 	}
 }
