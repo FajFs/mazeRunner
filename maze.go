@@ -73,25 +73,15 @@ func remWall(a, b *cell) {
 }
 
 func updateMaze(maze, stack *maze) {
-	/*
-		pop a cell from the stack and make it a current cell
-		If the current cell has any neighbours which have not been visited
-		Push the current cell to the stack
-		Choose one of the unvisited neighbours
-		Remove the wall between the current cell and the chosen cell
-		Mark the chosen cell as visited and push it to the stack
-	*/
 	c := stack.pop()
 	nonVisited := maze.getNonVisitedNeighbours(c)
 	if len(nonVisited) > 0 {
 		stack.push(c)
-		i := rand.Intn(len(nonVisited))
-		nC := nonVisited[i]
-
-		remWall(&maze.cells[int(c.row+c.col*cols)], &maze.cells[int(nC.row+nC.col*cols)])
+		nC := nonVisited[rand.Intn(len(nonVisited))]
+		remWall(&maze.cells[int(c.row*rows+c.col)], &maze.cells[int(nC.row*rows+nC.col)])
 		maze.cells[int(nC.row*rows+nC.col)].visited = true
-		visited++
 		stack.push(maze.cells[int(nC.row*rows+nC.col)])
+		visited++
 	}
 }
 

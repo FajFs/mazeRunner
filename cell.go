@@ -18,19 +18,19 @@ func newCell(row, col float64) cell {
 }
 
 func (c cell) show(s *ebiten.Image) {
-	x := c.row * blockSize
-	y := c.col * blockSize
+	x := c.col * blockSize
+	y := c.row * blockSize
 	w := float64(blockSize)
-	if c.walls[0] {
+	if c.walls[3] {
 		ebitenutil.DrawLine(s, x, y, x+w, y, color.White)
 	}
-	if c.walls[1] {
+	if c.walls[2] {
 		ebitenutil.DrawLine(s, x+w, y, x+w, y+w, color.White)
 	}
-	if c.walls[2] {
+	if c.walls[1] {
 		ebitenutil.DrawLine(s, x+w, y+w, x, y+w, color.White)
 	}
-	if c.walls[3] {
+	if c.walls[0] {
 		ebitenutil.DrawLine(s, x, y+w, x, y, color.White)
 	}
 	if c.visited {
