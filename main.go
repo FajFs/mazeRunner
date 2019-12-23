@@ -10,8 +10,8 @@ import (
 
 const (
 	tps       = 30
-	screenHW  = 600
-	blockSize = 50
+	screenHW  = 700
+	blockSize = 10
 	rows      = screenHW / blockSize
 	cols      = screenHW / blockSize
 )
