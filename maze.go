@@ -1,60 +1,110 @@
 package main
 
 import (
-	"image/color"
+	"math/rand"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 )
 
-var maze []cell
-var currCell cell
+var m maze
+var s maze
 
-type cell struct {
-	visited bool
-	walls   [4]bool
-	i, j    float64
+type maze struct {
+	cells []cell
 }
 
-const (
-	blockSize = 100
-)
-
-func newBlock(i, j float64) cell {
-	return cell{i: i, j: j, visited: false, walls: [4]bool{true, true, true, true}}
+// Push adds an Item to the top of the stack
+func (s *maze) push(t cell) {
+	s.cells = append(s.cells, t)
 }
 
-func (c cell) show(s *ebiten.Image) {
-	x := c.i * blockSize
-	y := c.j * blockSize
-	w := float64(blockSize)
-	if c.walls[0] {
-		ebitenutil.DrawLine(s, x, y, x+w, y, color.White)
+func (s *maze) pop() cell {
+	cell := s.cells[len(s.cells)-1]
+	s.cells = s.cells[0 : len(s.cells)-1]
+	return cell
+}
+
+func (s *maze) getNonVisitedNeighbours(c cell) []cell {
+	var neigh []cell
+	var nonVisited []cell
+	index := func(i, j float64) int {
+		if i < 0 || j < 0 || i > cols-1 || j > rows-1 {
+			return -1
+		}
+		return int(i*rows + j)
 	}
-	if c.walls[1] {
-		ebitenutil.DrawLine(s, x+w, y, x+w, y+w, color.White)
+	if i := index(c.row, c.col-1); i != -1 {
+		neigh = append(neigh, s.cells[i])
 	}
-	if c.walls[2] {
-		ebitenutil.DrawLine(s, x+w, y+w, x, y+w, color.White)
+	if i := index(c.row+1, c.col); i != -1 {
+		neigh = append(neigh, s.cells[i])
 	}
-	if c.walls[3] {
-		ebitenutil.DrawLine(s, x, y+w, x, y, color.White)
+	if i := index(c.row, c.col+1); i != -1 {
+		neigh = append(neigh, s.cells[i])
 	}
-	if c.visited {
-		ebitenutil.DrawRect(s, c.j*blockSize+10, c.i*blockSize+10, blockSize-20, blockSize-20, color.White)
+	if i := index(c.row-1, c.col); i != -1 {
+		neigh = append(neigh, s.cells[i])
+	}
+	for _, n := range neigh {
+		if n.visited == false {
+			nonVisited = append(nonVisited, n)
+		}
+	}
+	return nonVisited
+}
+
+func remWall(a, b *cell) {
+	x := a.row - b.row
+	if x == 1 {
+		a.walls[3] = false
+		b.walls[1] = false
+	} else if x == -1 {
+		a.walls[1] = false
+		b.walls[3] = false
+	}
+	y := a.col - b.col
+	if y == 1 {
+		a.walls[0] = false
+		b.walls[2] = false
+	} else if y == -1 {
+		a.walls[2] = false
+		b.walls[0] = false
 	}
 }
 
-func drawMaze(screen *ebiten.Image) {
-	for _, c := range maze {
+func updateMaze(maze, stack *maze) {
+	/*
+		pop a cell from the stack and make it a current cell
+		If the current cell has any neighbours which have not been visited
+		Push the current cell to the stack
+		Choose one of the unvisited neighbours
+		Remove the wall between the current cell and the chosen cell
+		Mark the chosen cell as visited and push it to the stack
+	*/
+	c := stack.pop()
+	nonVisited := maze.getNonVisitedNeighbours(c)
+	if len(nonVisited) > 0 {
+		stack.push(c)
+		i := rand.Intn(len(nonVisited))
+		nC := nonVisited[i]
+
+		remWall(&maze.cells[int(c.row+c.col*cols)], &maze.cells[int(nC.row+nC.col*cols)])
+		maze.cells[int(nC.row*rows+nC.col)].visited = true
+		visited++
+		stack.push(maze.cells[int(nC.row*rows+nC.col)])
+	}
+}
+
+func (s *maze) drawMaze(screen *ebiten.Image) {
+	for _, c := range s.cells {
 		c.show(screen)
 	}
 }
 
-func makeMaze(w, h float64) {
-	for i := 0.0; i < h/blockSize; i++ {
-		for j := 0.0; j < w/blockSize; j++ {
-			maze = append(maze, newBlock(i, j))
+func (s *maze) makeMaze(w, h float64) {
+	for i := 0.0; i < rows; i++ {
+		for j := 0.0; j < cols; j++ {
+			s.push(newCell(i, j))
 		}
 	}
 }

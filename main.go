@@ -15,15 +15,20 @@ import (
 )
 
 const (
-	screenWidth  = 1000
-	screenHeight = 1000
+	screenWidth  = 600
+	screenHeight = 600
+	blockSize    = 50
+	rows         = screenHeight / blockSize
+	cols         = screenWidth / blockSize
 )
 
 var (
+	visited    = 0
 	normalFont font.Face
 )
 
 func init() {
+	ebiten.SetMaxTPS(30)
 	tt, err := truetype.Parse(fonts.MPlus1pRegular_ttf)
 	if err != nil {
 		log.Fatal(err)
@@ -34,10 +39,15 @@ func init() {
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
-	makeMaze(screenWidth, screenHeight)
 	rand.Seed(time.Now().UnixNano())
-	maze[rand.Intn(len(maze))].visited = true
-	// currCell = maze[rand.Intn(len(maze))]
+	m = maze{}
+	s = maze{}
+
+	m.makeMaze(screenWidth, screenHeight)
+	startIndex := rand.Intn(len(m.cells))
+	visited++
+	m.cells[startIndex].visited = true
+	s.push(m.cells[startIndex])
 }
 
 func update(screen *ebiten.Image) error {
@@ -45,8 +55,17 @@ func update(screen *ebiten.Image) error {
 	if ebiten.IsDrawingSkipped() {
 		return nil
 	}
+
 	text.Draw(screen, fmt.Sprintf("FPS: %0.2f", fps), normalFont, 20, 40, color.White)
-	drawMaze(screen)
+	if visited < len(m.cells) {
+		updateMaze(&m, &s)
+	} else {
+		for i := range m.cells {
+			m.cells[i].visited = false
+		}
+	}
+
+	m.drawMaze(screen)
 	return nil
 }
 
