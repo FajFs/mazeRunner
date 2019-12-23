@@ -22,30 +22,24 @@ func (s *maze) pop() cell {
 }
 
 func (s *maze) getNonVisitedNeighbours(c cell) []cell {
-	var neigh []cell
 	var nonVisited []cell
-	index := func(i, j float64) int {
-		if i < 0 || j < 0 || i > cols-1 || j > rows-1 {
+	index := func(r, c float64) int {
+		if r < 0 || c < 0 || r > rows-1 || c > cols-1 {
 			return -1
 		}
-		return int(i*rows + j)
+		return int(r*rows + c)
 	}
-	if i := index(c.row, c.col-1); i != -1 {
-		neigh = append(neigh, s.cells[i])
+	if i := index(c.row, c.col-1); i != -1 && !s.cells[i].visited {
+		nonVisited = append(nonVisited, s.cells[i])
 	}
-	if i := index(c.row+1, c.col); i != -1 {
-		neigh = append(neigh, s.cells[i])
+	if i := index(c.row+1, c.col); i != -1 && !s.cells[i].visited {
+		nonVisited = append(nonVisited, s.cells[i])
 	}
-	if i := index(c.row, c.col+1); i != -1 {
-		neigh = append(neigh, s.cells[i])
+	if i := index(c.row, c.col+1); i != -1 && !s.cells[i].visited {
+		nonVisited = append(nonVisited, s.cells[i])
 	}
-	if i := index(c.row-1, c.col); i != -1 {
-		neigh = append(neigh, s.cells[i])
-	}
-	for _, n := range neigh {
-		if n.visited == false {
-			nonVisited = append(nonVisited, n)
-		}
+	if i := index(c.row-1, c.col); i != -1 && !s.cells[i].visited {
+		nonVisited = append(nonVisited, s.cells[i])
 	}
 	return nonVisited
 }
@@ -75,7 +69,7 @@ func (s *maze) drawMaze(screen *ebiten.Image) {
 	}
 }
 
-func (s *maze) makeMaze(w, h float64) {
+func (s *maze) makeMaze() {
 	for i := 0.0; i < rows; i++ {
 		for j := 0.0; j < cols; j++ {
 			s.push(newCell(i, j))

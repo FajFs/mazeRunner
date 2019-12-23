@@ -9,12 +9,11 @@ import (
 )
 
 const (
-	tps          = 30
-	screenWidth  = 600
-	screenHeight = 600
-	blockSize    = 50
-	rows         = screenHeight / blockSize
-	cols         = screenWidth / blockSize
+	tps       = 30
+	screenHW  = 600
+	blockSize = 50
+	rows      = screenHW / blockSize
+	cols      = screenHW / blockSize
 )
 
 var (
@@ -27,7 +26,7 @@ func init() {
 	stack = maze{}
 
 	//Prepare dfsRb
-	m.makeMaze(screenWidth, screenHeight)
+	m.makeMaze()
 	startIndex := rand.Intn(len(m.cells))
 	m.cells[startIndex].visited = true
 	stack.push(m.cells[startIndex])
@@ -50,7 +49,7 @@ func update(screen *ebiten.Image) error {
 }
 
 func main() {
-	if err := ebiten.Run(update, screenWidth, screenWidth, 1, "Maze"); err != nil {
+	if err := ebiten.Run(update, screenHW, screenHW, 1, "Maze"); err != nil {
 		log.Fatal(err)
 	}
 }
